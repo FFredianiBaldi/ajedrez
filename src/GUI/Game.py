@@ -1,7 +1,7 @@
 import pygame, sys
 from src.GUI.config import *
 from src.GUI.Board import *
-from src.GUI.GameState import *
+from src.logic.GameState import *
 
 class Game:
     def __init__(self) -> None:
