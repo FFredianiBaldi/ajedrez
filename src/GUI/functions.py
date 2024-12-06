@@ -5,3 +5,8 @@ def is_piece_selected_in_turn(white_turn:bool, color:str):
         return True
     else:
         return None
+
+def get_position_color(position):
+        if (position[0] + position[1]) % 2 == 0:
+            return "white"
+        return "black"

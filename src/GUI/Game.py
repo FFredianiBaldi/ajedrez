@@ -27,20 +27,29 @@ class Game:
                     if event.button == 1:
                         self.game_state.select_piece(mouse_pos)
                         if self.game_state.selected_piece != None:
-                            print(f'row: {self.game_state.selected_piece[0]} column: {self.game_state.selected_piece[1]}')
+                            print(f'piece: {self.game_state.selected_piece['piece']}')
+                            print(f'row: {self.game_state.selected_piece['position'][0]}')
+                            print(f'column: {self.game_state.selected_piece['position'][1]}')
                         else:
                             print('None')
             self.board.draw_board()
-            self.game_state.draw_pieces()
-
 
             mouse_pos = pygame.mouse.get_pos()
-            if self.game_state.is_mouse_over_piece_in_turn(mouse_pos):
+            if self.game_state.is_mouse_over_piece_in_turn(mouse_pos) or self.game_state.is_mouse_over_possible_move(mouse_pos):
                 pygame.mouse.set_cursor(pygame.SYSTEM_CURSOR_HAND)
             else:
                 pygame.mouse.set_cursor(pygame.SYSTEM_CURSOR_ARROW)
 
+            if self.game_state.selected_piece != None and self.game_state.selected_piece['piece'] == 'R':
+                self.game_state.rook_possible_moves()
 
+            if self.game_state.selected_piece == None:
+                self.game_state.possible_moves = []
+
+            if len(self.game_state.possible_moves) > 0:
+                self.game_state.draw_possible_moves()
+
+            self.game_state.draw_pieces()
 
             pygame.display.flip()
             self.clock.tick(FPS)
