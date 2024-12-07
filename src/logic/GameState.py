@@ -252,7 +252,7 @@ class GameState:
         # La logica del peon es tan compleja que tengo que hacer un is_valid aparte peon de mrd
         if not diagonal and self.state[row][column] == '--':
             return True
-        elif diagonal and self.state[row][column] != '--':
+        elif diagonal and self.state[row][column] != '--' and self.state[row][column][0] != self.selected_piece['color']:
             return True
         else:
             return False
