@@ -5,12 +5,12 @@ class GameState:
     def __init__(self, screen:pygame.Surface) -> None:
         self.state = [
             ['bR','bN','bB','bQ','bK','bB','bN','bR'],
+            ['bP','bP','bP','bP','bP','bP','bP','bP'],
             ['--','--','--','--','--','--','--','--'],
             ['--','--','--','--','--','--','--','--'],
             ['--','--','--','--','--','--','--','--'],
             ['--','--','--','--','--','--','--','--'],
-            ['--','--','--','--','--','--','--','--'],
-            ['--','--','--','--','--','--','--','--'],
+            ['wP','wP','wP','wP','wP','wP','wP','wP'],
             ['wR','wN','wB','wQ','wK','wB','wN','wR']
         ]
 
@@ -89,6 +89,10 @@ class GameState:
                 self.diagonal_possible_moves()
             elif self.selected_piece['piece'] == 'N':
                 self.knight_possible_moves()
+            elif self.selected_piece['piece'] == 'K':
+                self.king_possible_moves()
+            elif self.selected_piece['piece'] == 'P':
+                self.pawn_possible_moves()
         else:
             self.possible_moves = []
 
@@ -186,7 +190,52 @@ class GameState:
                 if self.is_valid_move(row, col):
                     self.possible_moves.append((row, col))
 
+    def king_possible_moves(self):
+        initial_row, initial_col = self.selected_piece['position']
+        rows = len(self.state)
+        cols = len(self.state[0])
+
+        moves = [
+            (-1, -1), (-1, 0), (-1, 1),
+            (0, -1), (0, 1),
+            (1, -1), (1, 0), (1, 1)
+        ]
+
+        for r, c in moves:
+            row, col = initial_row + r, initial_col + c
+            if 0 <= row < rows and 0 <= col < cols:
+                if self.is_valid_move(row, col):
+                    self.possible_moves.append((row, col))
     
+    def pawn_possible_moves(self):
+        initial_row, initial_col = self.selected_piece['position']
+        rows = len(self.state)
+        cols = len(self.state[0])
+
+        if self.selected_piece['color'] == 'w':
+            moves = [
+                (-1, 0), (-1, -1), (-1, 1)
+            ]
+            if self.is_pawn_first_move():
+                moves.append((-2, 0))
+            
+        if self.selected_piece['color'] == 'b':
+            moves = [
+                (1, 0), (1, -1), (1, 1)
+            ]
+            if self.is_pawn_first_move():
+                moves.append((2, 0))
+
+        for r, c in moves:
+            row, col = initial_row + r, initial_col + c
+            if c != 0:
+                diagonal = True
+            else:
+                diagonal = False
+            if 0 <= row < rows and 0 <= col < cols:
+                if self.is_pawn_valid_move(row, col, diagonal):
+                    self.possible_moves.append((row, col))
+
     def is_valid_move(self, row:int, column:int)->bool:
         piece_color = self.selected_piece['color']
         comparing_tile = self.state[row][column]
@@ -199,6 +248,23 @@ class GameState:
         else:
             return False
 
+    def is_pawn_valid_move(self, row:int, column:int, diagonal:bool)->bool:
+        # La logica del peon es tan compleja que tengo que hacer un is_valid aparte peon de mrd
+        if not diagonal and self.state[row][column] == '--':
+            return True
+        elif diagonal and self.state[row][column] != '--':
+            return True
+        else:
+            return False
+        
+    def is_pawn_first_move(self):
+        row, col = self.selected_piece['position']
+        if self.selected_piece['color'] == 'w' and row == 6:
+            return True
+        elif self.selected_piece['color'] == 'b' and row == 1:
+            return True
+        else:
+            return False
     def move_piece(self, mouse_pos:tuple)->None:
         x, y = mouse_pos
         row = y // self.tiles_width
