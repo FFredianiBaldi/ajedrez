@@ -216,14 +216,14 @@ class GameState:
             moves = [
                 (-1, 0), (-1, -1), (-1, 1)
             ]
-            if self.is_pawn_first_move():
+            if self.is_pawn_first_move() and self.state[initial_row - 1][initial_col] == '--':
                 moves.append((-2, 0))
             
         if self.selected_piece['color'] == 'b':
             moves = [
                 (1, 0), (1, -1), (1, 1)
             ]
-            if self.is_pawn_first_move():
+            if self.is_pawn_first_move() and self.state[initial_row + 1][initial_col] == '--':
                 moves.append((2, 0))
 
         for r, c in moves:
