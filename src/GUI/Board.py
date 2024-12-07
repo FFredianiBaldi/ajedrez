@@ -2,6 +2,13 @@ import pygame
 
 class Board:
     def __init__(self, screen:pygame.Surface, columns:int, rows:int) -> None:
+        """Constructor
+
+        Args:
+            screen (pygame.Surface): ventana donde se va a dibujar todo
+            columns (int): cantidad de columnas
+            rows (int): cantidad de filas
+        """
         self.columns = columns
         self.rows = rows
         self.screen = screen
@@ -10,6 +17,9 @@ class Board:
         self.tiles_height = self.screen.get_height() // 8
         
     def draw_board(self):
+        """Funcion que dibuja el tablero en pantalla
+        la recorre como una matriz
+        """
         for row in range(self.rows):
             for column in range(self.columns):
                 if (row + column) % 2 == 0:
