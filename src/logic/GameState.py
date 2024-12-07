@@ -302,6 +302,11 @@ class GameState:
                 else:
                     self.state[row][0] = '--'
                     self.state[row][col + 1] = f"{self.selected_piece['color']}R"
+            
+            # Promocion de peones
+            elif self.selected_piece['piece'] == 'P':
+                if (self.selected_piece['color'] == 'w' and row == 0) or (self.selected_piece['color'] == 'b' and row == 7):
+                    self.selected_piece['piece'] = 'Q'
             self.state[self.selected_piece['position'][0]][self.selected_piece['position'][1]] = '--'
             self.state[row][col] = f"{self.selected_piece['color']}{self.selected_piece['piece']}"
             self.selected_piece = None
