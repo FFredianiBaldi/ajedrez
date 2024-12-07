@@ -25,7 +25,9 @@ class Game:
                     sys.exit()
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     if event.button == 1:
+                        self.game_state.move_piece(mouse_pos)
                         self.game_state.select_piece(mouse_pos)
+                        self.game_state.save_possible_moves()
                         if self.game_state.selected_piece != None:
                             print(f'piece: {self.game_state.selected_piece['piece']}')
                             print(f'row: {self.game_state.selected_piece['position'][0]}')
@@ -40,11 +42,7 @@ class Game:
             else:
                 pygame.mouse.set_cursor(pygame.SYSTEM_CURSOR_ARROW)
 
-            if self.game_state.selected_piece != None and self.game_state.selected_piece['piece'] == 'R':
-                self.game_state.rook_possible_moves()
-
-            if self.game_state.selected_piece == None:
-                self.game_state.possible_moves = []
+            
 
             if len(self.game_state.possible_moves) > 0:
                 self.game_state.draw_possible_moves()

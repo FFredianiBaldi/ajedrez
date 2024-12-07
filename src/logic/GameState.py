@@ -7,7 +7,7 @@ class GameState:
             ['bR','bN','bB','bQ','bK','bB','bN','bR'],
             ['bP','bP','bP','bP','bP','bP','bP','bP'],
             ['--','--','--','--','--','--','--','--'],
-            ['--','--','--','wR','--','--','--','--'],
+            ['--','--','--','wR','bR','--','--','--'],
             ['--','--','--','--','--','--','--','--'],
             ['--','--','--','--','--','--','--','--'],
             ['wP','wP','wP','wP','wP','wP','wP','wP'],
@@ -76,6 +76,12 @@ class GameState:
         else:
             self.selected_piece = None
 
+    def save_possible_moves(self):
+        if self.selected_piece != None:
+            if self.selected_piece['piece'] == 'R':
+                self.rook_possible_moves()
+        else:
+            self.possible_moves = []
 
     def draw_possible_moves(self):
         for row, col in self.possible_moves:
@@ -106,6 +112,7 @@ class GameState:
             if not self.is_valid_move(r, col):
                 break
             self.possible_moves.append((r, col))
+        # Down moves
         for r in range(row - 1, -1, -1):
             if not self.is_valid_move(r, col):
                 break
@@ -121,3 +128,16 @@ class GameState:
             return False
         else:
             return False
+
+    def move_piece(self, mouse_pos:tuple)->None:
+        x, y = mouse_pos
+        row = y // self.tiles_width
+        col = x // self.tiles_height
+
+        if self.selected_piece != None:
+            if (row, col) in self.possible_moves:
+                self.state[self.selected_piece['position'][0]][self.selected_piece['position'][1]] = '--'
+                self.state[row][col] = f"{self.selected_piece['color']}{self.selected_piece['piece']}"
+                self.selected_piece = None
+                self.possible_moves = []
+                self.white_turn = not self.white_turn
