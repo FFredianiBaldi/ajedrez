@@ -10,6 +10,7 @@ class Game:
 
         self.screen = pygame.display.set_mode(SCREEN_SIZE)
         pygame.display.set_caption("PyChess")
+        pygame.display.set_icon(pygame.image.load("assets/icon.png"))
 
         self.board = Board(self.screen, 8, 8)
 
