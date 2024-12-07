@@ -7,7 +7,7 @@ class GameState:
             ['bR','bN','bB','bQ','bK','bB','bN','bR'],
             ['bP','bP','bP','bP','bP','bP','bP','bP'],
             ['--','--','--','--','--','--','--','--'],
-            ['--','--','--','wB','bB','--','--','--'],
+            ['--','--','--','wQ','bQ','--','--','--'],
             ['--','--','--','--','--','--','--','--'],
             ['--','--','--','--','--','--','--','--'],
             ['wP','wP','wP','wP','wP','wP','wP','wP'],
@@ -81,6 +81,9 @@ class GameState:
             if self.selected_piece['piece'] == 'R':
                 self.horizontal_vertical_possible_moves()
             elif self.selected_piece['piece'] == 'B':
+                self.diagonal_possible_moves()
+            elif self.selected_piece['piece'] == 'Q':
+                self.horizontal_vertical_possible_moves()
                 self.diagonal_possible_moves()
         else:
             self.possible_moves = []
