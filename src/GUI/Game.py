@@ -28,6 +28,20 @@ class Game:
                         self.game_state.move_piece(mouse_pos)
                         self.game_state.select_piece(mouse_pos)
                         self.game_state.save_possible_moves()
+                        if self.game_state.state[0][4] != 'bK':
+                            self.game_state.black_king_moved = True
+                        if self.game_state.state[0][0] != 'bR':
+                            self.game_state.long_black_rook_moved = True
+                        if self.game_state.state[0][7] != 'bR':
+                            self.game_state.short_black_rook_moved = True
+
+                        if self.game_state.state[7][4] != 'wK':
+                            self.game_state.white_king_moved = True
+                        if self.game_state.state[7][0] != 'wR':
+                            self.game_state.long_white_rook_moved = True
+                        if self.game_state.state[7][7] != 'wR':
+                            self.game_state.short_white_rook_moved = True
+
                         if self.game_state.selected_piece != None:
                             print(f'piece: {self.game_state.selected_piece['piece']}')
                             print(f'row: {self.game_state.selected_piece['position'][0]}')

@@ -23,6 +23,14 @@ class GameState:
         self.selected_piece = None
         self.possible_moves = []
 
+        self.white_king_moved = False
+        self.black_king_moved = False
+
+        self.short_black_rook_moved = False
+        self.long_black_rook_moved = False
+
+        self.short_white_rook_moved = False
+        self.long_white_rook_moved = False
     def draw_pieces(self):
         for i in range(len(self.state)):
             for j in range(len(self.state[i])):
@@ -201,6 +209,19 @@ class GameState:
             (1, -1), (1, 0), (1, 1)
         ]
 
+        if self.selected_piece['color'] == 'w' and not self.white_king_moved:
+            if not self.short_white_rook_moved and self.state[7][5] == '--':
+                moves.append((0, 2))
+            if not self.long_white_rook_moved and self.state[7][2] == self.state[7][3] == '--':
+                moves.append((0, -2))
+
+        elif self.selected_piece['color'] == 'b' and not self.black_king_moved:
+            if not self.short_black_rook_moved and self.state[0][5] == '--':
+                moves.append((0, 2))
+            if not self.long_black_rook_moved and self.state[0][2] == self.state[0][3] == '--':
+                moves.append((0, -2))
+        
+
         for r, c in moves:
             row, col = initial_row + r, initial_col + c
             if 0 <= row < rows and 0 <= col < cols:
@@ -270,10 +291,19 @@ class GameState:
         row = y // self.tiles_width
         col = x // self.tiles_height
 
-        if self.selected_piece != None:
-            if (row, col) in self.possible_moves:
-                self.state[self.selected_piece['position'][0]][self.selected_piece['position'][1]] = '--'
-                self.state[row][col] = f"{self.selected_piece['color']}{self.selected_piece['piece']}"
-                self.selected_piece = None
-                self.possible_moves = []
-                self.white_turn = not self.white_turn
+        if self.selected_piece != None and (row, col) in self.possible_moves:
+            # Caso de enroque
+            if self.selected_piece['piece'] == 'K' and abs(col - self.selected_piece['position'][1]) == 2:
+                # Enroque corto
+                if col > self.selected_piece['position'][1]:
+                    self.state[row][7] = '--'
+                    self.state[row][col - 1] = f"{self.selected_piece['color']}R"
+                # Enroque largo
+                else:
+                    self.state[row][0] = '--'
+                    self.state[row][col + 1] = f"{self.selected_piece['color']}R"
+            self.state[self.selected_piece['position'][0]][self.selected_piece['position'][1]] = '--'
+            self.state[row][col] = f"{self.selected_piece['color']}{self.selected_piece['piece']}"
+            self.selected_piece = None
+            self.possible_moves = []
+            self.white_turn = not self.white_turn
