@@ -5,12 +5,12 @@ class GameState:
     def __init__(self, screen:pygame.Surface) -> None:
         self.state = [
             ['bR','bN','bB','bQ','bK','bB','bN','bR'],
-            ['bP','bP','bP','bP','bP','bP','bP','bP'],
-            ['--','--','--','--','--','--','--','--'],
-            ['--','--','--','wQ','bQ','--','--','--'],
             ['--','--','--','--','--','--','--','--'],
             ['--','--','--','--','--','--','--','--'],
-            ['wP','wP','wP','wP','wP','wP','wP','wP'],
+            ['--','--','--','--','--','--','--','--'],
+            ['--','--','--','--','--','--','--','--'],
+            ['--','--','--','--','--','--','--','--'],
+            ['--','--','--','--','--','--','--','--'],
             ['wR','wN','wB','wQ','wK','wB','wN','wR']
         ]
 
@@ -61,6 +61,8 @@ class GameState:
         column = x // self.tiles_width
         row = y // self.tiles_height
 
+        self.possible_moves = []
+
         piece = self.state[row][column]
 
         if piece != '--':
@@ -85,6 +87,8 @@ class GameState:
             elif self.selected_piece['piece'] == 'Q':
                 self.horizontal_vertical_possible_moves()
                 self.diagonal_possible_moves()
+            elif self.selected_piece['piece'] == 'N':
+                self.knight_possible_moves()
         else:
             self.possible_moves = []
 
@@ -163,6 +167,25 @@ class GameState:
             self.possible_moves.append((row, col))
             row += 1
             col += 1
+
+    def knight_possible_moves(self):
+        initial_row, initial_col = self.selected_piece['position']
+        rows = len(self.state)
+        cols = len(self.state[0])
+
+        moves = [
+            (-2, -1), (-2, 1),
+            (-1, 2), (1, 2),
+            (2, 1), (2, -1),
+            (1, -2), (-1, -2)
+        ]
+
+        for r, c in moves:
+            row, col = initial_row + r, initial_col + c
+            if 0 <= row < rows and 0 <= col < cols:
+                if self.is_valid_move(row, col):
+                    self.possible_moves.append((row, col))
+
     
     def is_valid_move(self, row:int, column:int)->bool:
         piece_color = self.selected_piece['color']
