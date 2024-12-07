@@ -7,7 +7,7 @@ class GameState:
             ['bR','bN','bB','bQ','bK','bB','bN','bR'],
             ['bP','bP','bP','bP','bP','bP','bP','bP'],
             ['--','--','--','--','--','--','--','--'],
-            ['--','--','--','wR','bR','--','--','--'],
+            ['--','--','--','wB','bB','--','--','--'],
             ['--','--','--','--','--','--','--','--'],
             ['--','--','--','--','--','--','--','--'],
             ['wP','wP','wP','wP','wP','wP','wP','wP'],
@@ -79,7 +79,9 @@ class GameState:
     def save_possible_moves(self):
         if self.selected_piece != None:
             if self.selected_piece['piece'] == 'R':
-                self.rook_possible_moves()
+                self.horizontal_vertical_possible_moves()
+            elif self.selected_piece['piece'] == 'B':
+                self.diagonal_possible_moves()
         else:
             self.possible_moves = []
 
@@ -92,9 +94,8 @@ class GameState:
 
 
     
-    def rook_possible_moves(self) -> None:
+    def horizontal_vertical_possible_moves(self) -> None:
         row, col = self.selected_piece['position']
-        self.possible_moves = []
 
         # Right moves
         for c in range(col + 1, 8):
@@ -117,6 +118,49 @@ class GameState:
             if not self.is_valid_move(r, col):
                 break
             self.possible_moves.append((r, col))
+
+    def diagonal_possible_moves(self) -> None:
+        initial_row, initial_col = self.selected_piece['position']
+
+        rows = len(self.state)
+        cols = len(self.state[0])
+
+        # UpLeft moves
+        row, col = initial_row - 1, initial_col - 1
+        while row >= 0 and col >= 0:
+            if not self.is_valid_move(row, col):
+                break
+            self.possible_moves.append((row, col))
+            row -= 1
+            col -= 1
+
+        # UpRight moves
+        row, col = initial_row - 1, initial_col + 1
+        while row >= 0 and col <= cols-1:
+            if not self.is_valid_move(row, col):
+                break
+            self.possible_moves.append((row, col))
+            row -= 1
+            col += 1
+
+        # UpLeft moves
+        row, col = initial_row + 1, initial_col - 1
+        while row <= rows-1 and col >= 0:
+            if not self.is_valid_move(row, col):
+                break
+            self.possible_moves.append((row, col))
+            row += 1
+            col -= 1
+        
+        # UpRight moves
+        row, col = initial_row + 1, initial_col + 1
+        while row <= rows-1 and col <= cols-1:
+            if not self.is_valid_move(row, col):
+                break
+            self.possible_moves.append((row, col))
+            row += 1
+            col += 1
+    
     def is_valid_move(self, row:int, column:int)->bool:
         piece_color = self.selected_piece['color']
         comparing_tile = self.state[row][column]
