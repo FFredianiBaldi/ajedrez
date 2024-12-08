@@ -21,6 +21,25 @@ class Game:
     def run(self):
         while True:
             self.screen.fill((0, 0, 0))
+
+            # Se dibuja el tablero
+            self.board.draw_board()
+
+            # El mouse cambia a la manito en caso de que el mouse pase por una pieza o movimientos posibles
+            mouse_pos = pygame.mouse.get_pos()
+            if self.game_state.is_mouse_over_piece_in_turn(mouse_pos) or self.game_state.is_mouse_over_possible_move(mouse_pos):
+                pygame.mouse.set_cursor(pygame.SYSTEM_CURSOR_HAND)
+            else:
+                pygame.mouse.set_cursor(pygame.SYSTEM_CURSOR_ARROW)
+
+            
+            # Si los hay, dibuja los movimientos posibles
+            if len(self.game_state.possible_moves) > 0:
+                self.game_state.draw_possible_moves()
+
+            # Dibuja las piezas
+            self.game_state.draw_pieces()
+
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     pygame.quit()
@@ -55,24 +74,6 @@ class Game:
                             print(f'column: {self.game_state.selected_piece['position'][1]}')
                         else:
                             print('None')
-
-            # Se dibuja el tablero
-            self.board.draw_board()
-
-            # El mouse cambia a la manito en caso de que el mouse pase por una pieza o movimientos posibles
-            mouse_pos = pygame.mouse.get_pos()
-            if self.game_state.is_mouse_over_piece_in_turn(mouse_pos) or self.game_state.is_mouse_over_possible_move(mouse_pos):
-                pygame.mouse.set_cursor(pygame.SYSTEM_CURSOR_HAND)
-            else:
-                pygame.mouse.set_cursor(pygame.SYSTEM_CURSOR_ARROW)
-
-            
-            # Si los hay, dibuja los movimientos posibles
-            if len(self.game_state.possible_moves) > 0:
-                self.game_state.draw_possible_moves()
-
-            # Dibuja las piezas
-            self.game_state.draw_pieces()
-
+                            
             pygame.display.flip()
             self.clock.tick(FPS)

@@ -1,4 +1,4 @@
-import pygame
+import pygame, sys
 from src.GUI.functions import *
 
 class GameState:
@@ -10,7 +10,7 @@ class GameState:
         """
         self.state = [
             ['bR','bN','bB','bQ','bK','bB','bN','bR'],
-            ['bP','bP','bP','bP','bP','bP','bP','bP'],
+            ['bP','bP','bP','bP','wP','bP','bP','bP'],
             ['--','--','--','--','--','--','--','--'],
             ['--','--','--','--','--','--','--','--'],
             ['--','--','--','--','--','--','--','--'],
@@ -418,12 +418,57 @@ class GameState:
                     self.state[row][0] = '--'
                     self.state[row][col + 1] = f"{self.selected_piece['color']}R"
             
-            # Promocion de peones
-            elif self.selected_piece['piece'] == 'P':
-                if (self.selected_piece['color'] == 'w' and row == 0) or (self.selected_piece['color'] == 'b' and row == 7):
-                    self.selected_piece['piece'] = 'Q'
             self.state[self.selected_piece['position'][0]][self.selected_piece['position'][1]] = '--'
             self.state[row][col] = f"{self.selected_piece['color']}{self.selected_piece['piece']}"
+            # Promocion de peones
+            if self.selected_piece['piece'] == 'P':
+                if (self.selected_piece['color'] == 'w' and row == 0) or (self.selected_piece['color'] == 'b' and row == 7):
+                    self.selected_piece['piece'] = self.pawn_promotion(row, col)
+                    self.state[row][col] = f"{self.selected_piece['color']}{self.selected_piece['piece']}"
             self.selected_piece = None
             self.possible_moves = []
             self.white_turn = not self.white_turn
+
+    def pawn_promotion(self, row, col)->str:
+        clock = pygame.time.Clock()
+        if self.selected_piece['color'] == 'w':
+            selection_rect = pygame.Rect(col * self.tiles_width, row * self.tiles_height, self.tiles_width, self.tiles_height*4)
+        else:
+            selection_rect = pygame.Rect(col * self.tiles_width, (row * self.tiles_height) - self.tiles_height * 3, self.tiles_width, self.tiles_height*4)
+    
+        pieces_buttons = [
+            {'piece' : 'Q'},
+            {'piece' : 'R'},
+            {'piece' : 'B'},
+            {'piece' : 'N'}
+        ]
+
+        initial_position_x, initial_position_y = selection_rect.x, selection_rect.y
+
+        for i, piece in enumerate(pieces_buttons):
+            image = pygame.image.load(f"assets/pieces/{self.selected_piece['color']}/{piece['piece']}.png")
+            piece['surface'] = pygame.transform.scale(image, (self.tiles_width, self.tiles_height))
+            piece['position'] = (initial_position_x, initial_position_y + i * self.tiles_height)
+            piece['rect'] = piece['surface'].get_rect()
+            piece['rect'].topleft = piece['position']
+            piece['pressed'] = False
+
+
+        while True:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    pygame.quit()
+                    sys.exit()
+                if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                    for piece in pieces_buttons:
+                        if piece['rect'].collidepoint(event.pos):
+                            piece['pressed'] = not piece['pressed']
+
+            pygame.draw.rect(self.screen, 'white', selection_rect)
+            for piece in pieces_buttons:
+                self.screen.blit(piece['surface'], piece['position'])
+                if piece['pressed']:
+                    return piece['piece']
+
+            pygame.display.flip()
+            clock.tick(60)
