@@ -10,7 +10,7 @@ class GameState:
         """
         self.state = [
             ['bR','bN','bB','bQ','bK','bB','bN','bR'],
-            ['bP','bP','bP','bP','wP','bP','bP','bP'],
+            ['bP','bP','bP','bP','bP','bP','bP','bP'],
             ['--','--','--','--','--','--','--','--'],
             ['--','--','--','--','--','--','--','--'],
             ['--','--','--','--','--','--','--','--'],
@@ -452,9 +452,11 @@ class GameState:
             piece['rect'] = piece['surface'].get_rect()
             piece['rect'].topleft = piece['position']
             piece['pressed'] = False
+            piece['rect_color'] = 'white'
 
 
         while True:
+            mouse_pos = pygame.mouse.get_pos()
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     pygame.quit()
@@ -466,6 +468,11 @@ class GameState:
 
             pygame.draw.rect(self.screen, 'white', selection_rect)
             for piece in pieces_buttons:
+                if piece['rect'].collidepoint(mouse_pos):
+                    piece['rect_color'] = 'lightgray'
+                else:
+                    piece['rect_color'] = 'white'
+                pygame.draw.rect(self.screen, piece['rect_color'], piece['rect'])
                 self.screen.blit(piece['surface'], piece['position'])
                 if piece['pressed']:
                     return piece['piece']
