@@ -333,10 +333,7 @@ class GameState:
         for r, c in moves:
             row, col = initial_row + r, initial_col + c
             # Verifica si el movimiento que se esta por analizar es diagonal, ya que asi lo requiere self.is_pawn_valid_move
-            if c != 0:
-                diagonal = True
-            else:
-                diagonal = False
+            diagonal = True if c != 0 else False
             if 0 <= row < rows and 0 <= col < cols:
                 if self.is_pawn_valid_move(row, col, diagonal):
                     self.possible_moves.append((row, col))
