@@ -41,6 +41,8 @@ class GameState:
 
         self.short_white_rook_moved = False
         self.long_white_rook_moved = False
+
+        self.check = False
     def draw_pieces(self):
         """Funcion que dibuja las piezas
         recorre el tablero como una matriz, y en base al contenido
@@ -365,7 +367,6 @@ class GameState:
             return False
 
     def is_pawn_valid_move(self, row:int, column:int, diagonal:bool)->bool:
-        # La logica del peon es tan compleja que tengo que hacer un is_valid aparte peon de mrd
 
         # Si no es diagonal, solo revisa que no haya nada en esa casilla
         # En ese caso, es casilla valida
@@ -393,38 +394,6 @@ class GameState:
             return True
         else:
             return False
-    def move_piece(self, mouse_pos:tuple)->None:
-        """Funcion que mueve la pieza seleccionada
-
-        Args:
-            mouse_pos (tuple): posicion del mouse
-        """
-        x, y = mouse_pos
-        row = y // self.tiles_width
-        col = x // self.tiles_height
-
-        if self.selected_piece != None and (row, col) in self.possible_moves:
-            # Caso de enroque
-            if self.selected_piece['piece'] == 'K' and abs(col - self.selected_piece['position'][1]) == 2:
-                # Enroque corto
-                if col > self.selected_piece['position'][1]:
-                    self.state[row][7] = '--'
-                    self.state[row][col - 1] = f"{self.selected_piece['color']}R"
-                # Enroque largo
-                else:
-                    self.state[row][0] = '--'
-                    self.state[row][col + 1] = f"{self.selected_piece['color']}R"
-            
-            self.state[self.selected_piece['position'][0]][self.selected_piece['position'][1]] = '--'
-            self.state[row][col] = f"{self.selected_piece['color']}{self.selected_piece['piece']}"
-            # Promocion de peones
-            if self.selected_piece['piece'] == 'P':
-                if (self.selected_piece['color'] == 'w' and row == 0) or (self.selected_piece['color'] == 'b' and row == 7):
-                    self.selected_piece['piece'] = self.pawn_promotion(row, col)
-                    self.state[row][col] = f"{self.selected_piece['color']}{self.selected_piece['piece']}"
-            self.selected_piece = None
-            self.possible_moves = []
-            self.white_turn = not self.white_turn
 
     def pawn_promotion(self, row, col)->str:
         clock = pygame.time.Clock()
@@ -476,3 +445,70 @@ class GameState:
 
             pygame.display.flip()
             clock.tick(60)
+
+
+    def is_this_move_a_check(self)->bool:
+        for row in range(len(self.state)):
+            for column in range(len(self.state[row])):
+                piece = self.state[row][column][1]
+                color = self.state[row][column][0]
+                if self.white_turn and color == 'w':
+                    self.selected_piece = {
+                        'piece' : piece,
+                        'color' : color,
+                        'position' : (row, column)
+                    }
+                    self.save_possible_moves()
+                elif not self.white_turn and color == 'b':
+                    self.selected_piece = {
+                        'piece' : piece,
+                        'color' : color,
+                        'position' : (row, column)
+                    }
+                    self.save_possible_moves()
+        
+        for row, column in self.possible_moves:
+            if self.white_turn and self.state[row][column] == 'bK':
+                print("Jaque!!") #depurar
+                return True
+            elif not self.white_turn and self.state[row][column] == 'wK':
+                print("Jaque!!") #depurar
+                return True
+        
+        return False
+
+    def move_piece(self, mouse_pos:tuple)->None:
+        """Funcion que mueve la pieza seleccionada
+
+        Args:
+            mouse_pos (tuple): posicion del mouse
+        """
+        x, y = mouse_pos
+        row = y // self.tiles_width
+        col = x // self.tiles_height
+
+        if self.selected_piece != None and (row, col) in self.possible_moves:
+            # Caso de enroque
+            if self.selected_piece['piece'] == 'K' and abs(col - self.selected_piece['position'][1]) == 2:
+                # Enroque corto
+                if col > self.selected_piece['position'][1]:
+                    self.state[row][7] = '--'
+                    self.state[row][col - 1] = f"{self.selected_piece['color']}R"
+                # Enroque largo
+                else:
+                    self.state[row][0] = '--'
+                    self.state[row][col + 1] = f"{self.selected_piece['color']}R"
+            
+            self.state[self.selected_piece['position'][0]][self.selected_piece['position'][1]] = '--'
+            self.state[row][col] = f"{self.selected_piece['color']}{self.selected_piece['piece']}"
+            # Promocion de peones
+            if self.selected_piece['piece'] == 'P':
+                if (self.selected_piece['color'] == 'w' and row == 0) or (self.selected_piece['color'] == 'b' and row == 7):
+                    self.selected_piece['piece'] = self.pawn_promotion(row, col)
+                    self.state[row][col] = f"{self.selected_piece['color']}{self.selected_piece['piece']}"
+
+            if self.is_this_move_a_check():
+                self.check = True
+            self.selected_piece = None
+            self.possible_moves = []
+            self.white_turn = not self.white_turn
