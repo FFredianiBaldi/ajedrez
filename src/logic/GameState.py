@@ -135,18 +135,18 @@ class GameState:
         """
         if self.selected_piece != None:
             if self.selected_piece['piece'] == 'R':
-                self.horizontal_vertical_possible_moves()
+                self.possible_moves.extend(self.horizontal_vertical_possible_moves())
             elif self.selected_piece['piece'] == 'B':
-                self.diagonal_possible_moves()
+                self.possible_moves.extend(self.diagonal_possible_moves())
             elif self.selected_piece['piece'] == 'Q':
-                self.horizontal_vertical_possible_moves()
-                self.diagonal_possible_moves()
+                self.possible_moves.extend(self.horizontal_vertical_possible_moves())
+                self.possible_moves.extend(self.diagonal_possible_moves())
             elif self.selected_piece['piece'] == 'N':
-                self.knight_possible_moves()
+                self.possible_moves.extend(self.knight_possible_moves())
             elif self.selected_piece['piece'] == 'K':
-                self.king_possible_moves()
+                self.possible_moves.extend(self.king_possible_moves())
             elif self.selected_piece['piece'] == 'P':
-                self.pawn_possible_moves()
+                self.possible_moves.extend(self.pawn_possible_moves())
         else:
             self.possible_moves = []
 
@@ -170,27 +170,31 @@ class GameState:
         """
         row, col = self.selected_piece['position']
 
+        possible_moves = []
+
         # Right moves
         for c in range(col + 1, 8):
-            if not self.is_valid_move(row, c):
+            if not self.is_valid_move(row, c, possible_moves):
                 break
-            self.possible_moves.append((row, c))
+            possible_moves.append((row, c))
         # Left moves
         for c in range(col - 1, -1, -1):
-            if not self.is_valid_move(row, c):
+            if not self.is_valid_move(row, c, possible_moves):
                 break
-            self.possible_moves.append((row, c))
+            possible_moves.append((row, c))
 
         # Up moves
         for r in range(row + 1, 8):
-            if not self.is_valid_move(r, col):
+            if not self.is_valid_move(r, col, possible_moves):
                 break
-            self.possible_moves.append((r, col))
+            possible_moves.append((r, col))
         # Down moves
         for r in range(row - 1, -1, -1):
-            if not self.is_valid_move(r, col):
+            if not self.is_valid_move(r, col, possible_moves):
                 break
-            self.possible_moves.append((r, col))
+            possible_moves.append((r, col))
+
+        return possible_moves
 
     def diagonal_possible_moves(self) -> None:
         """Funcion que determina cuales son los posibles movimientos
@@ -203,41 +207,45 @@ class GameState:
         rows = len(self.state)
         cols = len(self.state[0])
 
+        possible_moves = []
+
         # UpLeft moves
         row, col = initial_row - 1, initial_col - 1
         while row >= 0 and col >= 0:
-            if not self.is_valid_move(row, col):
+            if not self.is_valid_move(row, col, possible_moves):
                 break
-            self.possible_moves.append((row, col))
+            possible_moves.append((row, col))
             row -= 1
             col -= 1
 
         # UpRight moves
         row, col = initial_row - 1, initial_col + 1
         while row >= 0 and col <= cols-1:
-            if not self.is_valid_move(row, col):
+            if not self.is_valid_move(row, col, possible_moves):
                 break
-            self.possible_moves.append((row, col))
+            possible_moves.append((row, col))
             row -= 1
             col += 1
 
         # UpLeft moves
         row, col = initial_row + 1, initial_col - 1
         while row <= rows-1 and col >= 0:
-            if not self.is_valid_move(row, col):
+            if not self.is_valid_move(row, col, possible_moves):
                 break
-            self.possible_moves.append((row, col))
+            possible_moves.append((row, col))
             row += 1
             col -= 1
         
         # UpRight moves
         row, col = initial_row + 1, initial_col + 1
         while row <= rows-1 and col <= cols-1:
-            if not self.is_valid_move(row, col):
+            if not self.is_valid_move(row, col, possible_moves):
                 break
-            self.possible_moves.append((row, col))
+            possible_moves.append((row, col))
             row += 1
             col += 1
+
+        return possible_moves
 
     def knight_possible_moves(self):
         """Funcion que determina cuales son los posibles movimientos
@@ -247,6 +255,8 @@ class GameState:
         initial_row, initial_col = self.selected_piece['position']
         rows = len(self.state)
         cols = len(self.state[0])
+
+        possible_moves = []
 
         moves = [
             (-2, -1), (-2, 1),
@@ -259,8 +269,10 @@ class GameState:
             row, col = initial_row + r, initial_col + c
             # Se asegura de que el movimiento este dentro del rango de self.state
             if 0 <= row < rows and 0 <= col < cols:
-                if self.is_valid_move(row, col):
-                    self.possible_moves.append((row, col))
+                if self.is_valid_move(row, col, possible_moves):
+                    possible_moves.append((row, col))
+        
+        return possible_moves
 
     def king_possible_moves(self):
         """Funcion que determina cuales son los posibles movimientos
@@ -279,6 +291,7 @@ class GameState:
             (1, -1), (1, 0), (1, 1)
         ]
 
+        possible_moves = []
 
         # Enroque blanco
         if self.selected_piece['color'] == 'w' and not self.white_king_moved:
@@ -303,8 +316,10 @@ class GameState:
             row, col = initial_row + r, initial_col + c
             # Se asegura de que el movimiento este dentro del rango de self.state
             if 0 <= row < rows and 0 <= col < cols:
-                if self.is_valid_move(row, col):
-                    self.possible_moves.append((row, col))
+                if self.is_valid_move(row, col, possible_moves):
+                    possible_moves.append((row, col))
+
+        return possible_moves
     
     def pawn_possible_moves(self):
         """Funcion que determina los movimientos posibles de un peon
@@ -315,6 +330,9 @@ class GameState:
         initial_row, initial_col = self.selected_piece['position']
         rows = len(self.state)
         cols = len(self.state[0])
+
+        possible_moves = []
+
 
         if self.selected_piece['color'] == 'w':
             moves = [
@@ -338,9 +356,11 @@ class GameState:
             diagonal = True if c != 0 else False
             if 0 <= row < rows and 0 <= col < cols:
                 if self.is_pawn_valid_move(row, col, diagonal):
-                    self.possible_moves.append((row, col))
+                    possible_moves.append((row, col))
 
-    def is_valid_move(self, row:int, column:int)->bool:
+        return possible_moves
+
+    def is_valid_move(self, row:int, column:int, possible_moves:list)->bool:
         """Funcion que verifica si un movimiento es valido
 
         Args:
@@ -360,7 +380,7 @@ class GameState:
         # Si hay una pieza en la casilla, pero es pieza enemiga, la casilla es valida
         # pero las que siguen no
         elif self.state[row][column][0] != piece_color:
-            self.possible_moves.append((row, column))
+            possible_moves.append((row, column))
             return False
         # Si hay una pieza del mismo color, la casilla no es valida
         else:
@@ -377,7 +397,44 @@ class GameState:
             return True
         else:
             return False
-        
+
+    def is_this_state_check(self, state:list, color:str)->bool:
+        original_selected_piece = self.selected_piece.copy()
+        all_opponent_possible_moves = []
+        for row in range(len(state)):
+            for column in range(len(state[1])):
+                piece_color = state[row][column][0]
+                piece_name = state[row][column][1]
+                self.selected_piece = {
+                    'piece': piece_name,
+                    'color' : piece_color,
+                    'position': (row, column)
+                }
+                if (color == 'w' and piece_color == 'b') or (color == 'b' and piece_color == 'w'):
+                    if piece_name == 'R':
+                        all_opponent_possible_moves.extend(self.horizontal_vertical_possible_moves())
+                    elif piece_name == 'B':
+                        all_opponent_possible_moves.extend(self.diagonal_possible_moves())
+                    elif piece_name == 'Q':
+                        all_opponent_possible_moves.extend(self.horizontal_vertical_possible_moves())
+                        all_opponent_possible_moves.extend(self.diagonal_possible_moves())
+                    elif piece_name == 'N':
+                        all_opponent_possible_moves.extend(self.knight_possible_moves())
+                    elif piece_name == 'K':
+                        all_opponent_possible_moves.extend(self.king_possible_moves())
+                    elif piece_name == 'P':
+                        all_opponent_possible_moves.extend(self.pawn_possible_moves())
+        self.selected_piece = original_selected_piece
+
+        for move in all_opponent_possible_moves:
+            if state[move[0]][move[1]] == f"{color}K":
+                print('Jaque!!!')
+                return True
+            
+        return False
+
+
+
     def is_pawn_first_move(self)->bool:
         """Funcion que define si es el primer movimiento de un peon
 
@@ -446,37 +503,6 @@ class GameState:
             pygame.display.flip()
             clock.tick(60)
 
-
-    def is_this_move_a_check(self)->bool:
-        for row in range(len(self.state)):
-            for column in range(len(self.state[row])):
-                piece = self.state[row][column][1]
-                color = self.state[row][column][0]
-                if self.white_turn and color == 'w':
-                    self.selected_piece = {
-                        'piece' : piece,
-                        'color' : color,
-                        'position' : (row, column)
-                    }
-                    self.save_possible_moves()
-                elif not self.white_turn and color == 'b':
-                    self.selected_piece = {
-                        'piece' : piece,
-                        'color' : color,
-                        'position' : (row, column)
-                    }
-                    self.save_possible_moves()
-        
-        for row, column in self.possible_moves:
-            if self.white_turn and self.state[row][column] == 'bK':
-                print("Jaque!!") #depurar
-                return True
-            elif not self.white_turn and self.state[row][column] == 'wK':
-                print("Jaque!!") #depurar
-                return True
-        
-        return False
-
     def move_piece(self, mouse_pos:tuple)->None:
         """Funcion que mueve la pieza seleccionada
 
@@ -507,8 +533,8 @@ class GameState:
                     self.selected_piece['piece'] = self.pawn_promotion(row, col)
                     self.state[row][col] = f"{self.selected_piece['color']}{self.selected_piece['piece']}"
 
-            if self.is_this_move_a_check():
-                self.check = True
+            if self.is_this_state_check(self.state, 'b' if self.white_turn else 'w'):
+                self.check == True
             self.selected_piece = None
             self.possible_moves = []
             self.white_turn = not self.white_turn
